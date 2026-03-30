@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Pragma" content="no-cache">
 <title>杨大美学习会议工具包</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -17,35 +19,32 @@ textarea{min-height:200px;resize:vertical;font-family:inherit;line-height:1.8}
 .label{font-size:13px;color:#666;margin-bottom:6px}
 .tip{background:#e8f4fd;border:1px solid #a9cce3;border-radius:8px;padding:12px;margin-bottom:12px;font-size:13px;color:#1a5276}
 #output{background:#f8f9fa;border:1px solid #dee2e6;border-radius:6px;padding:12px;font-size:13px;line-height:1.8;display:none;white-space:pre-wrap;word-break:break-all}
-.copy-hint{font-size:12px;color:#28a745;display:none;margin-top:8px}
+.copy-hint{font-size:12px;color:#28a745;display:none}
 .hist-item{background:#f8f9fa;border:1px solid #eee;border-radius:6px;padding:10px;margin-bottom:8px;font-size:13px}
 .hist-item .ht{font-weight:bold;color:#1a5276;margin-bottom:4px}
 .hist-item .hd{color:#666}
-#gatex{position:fixed;inset:0;background:linear-gradient(135deg,#1a5276,#154360);display:flex;align-items:center;justify-content:center;z-index:9999}
-#gatex-inner{background:#fff;padding:24px;border-radius:12px;max-width:360px;width:90%;text-align:center;max-height:90vh;overflow-y:auto}
-#gatex-inner img{width:100%;border-radius:8px;margin-bottom:12px}
-#gatex h2{font-size:16px;margin-bottom:8px}
-#gatex p{font-size:12px;color:#666;margin-bottom:16px}
-#gatex input{margin-bottom:12px}
-.err{color:#e74c3c;font-size:12px;display:none}
 .empty{color:#999;font-size:13px}
+#gatex{position:fixed;inset:0;background:linear-gradient(135deg,#1a5276,#154360);display:flex;align-items:center;justify-content:center;z-index:9999}
+#box{background:#fff;padding:24px;border-radius:12px;max-width:360px;width:90%;text-align:center;max-height:90vh;overflow-y:auto}
+#box img{width:100%;border-radius:8px;margin-bottom:12px}
+#box h2{font-size:16px;margin-bottom:8px}
+#box p{font-size:12px;color:#666;margin-bottom:16px}
+#box input{margin-bottom:12px}
+.err{color:#e74c3c;font-size:12px;display:none}
 </style>
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 </head>
 <body>
 
 <div id="gatex">
-<div id="gatex-inner">
-<img src="cover1.jpg" alt="封面">
+<div id="box">
+<img src="cover1.jpg" alt="">
 <h2>杨大美学习会议工具包</h2>
 <p>请回答问题后进入</p>
 <div class="label">你是谁？</div>
 <input type="text" id="pw" placeholder="请输入答案">
-<button class="btn" id="okbtn" style="width:100%">确认进入</button>
+<button class="btn" onclick="mycheck()" style="width:100%">确认进入</button>
 <div class="err" id="err">答案错误，请重试</div>
-<img src="cover2.jpg" alt="装饰" style="margin-top:16px">
+<img src="cover2.jpg" alt="" style="margin-top:16px">
 </div>
 </div>
 
@@ -67,7 +66,7 @@ textarea{min-height:200px;resize:vertical;font-family:inherit;line-height:1.8}
 </select>
 <div class="label">补充要求（可选）</div>
 <textarea id="extra" placeholder="例如：需要包含习近平讲话原文、需要州委文件、需要镇党委实施方案..."></textarea>
-<button class="btn" id="genbtn">生成提示词（生成即复制）</button>
+<button class="btn" onclick="mygen()">生成提示词（生成即复制）</button>
 </div>
 
 <div id="output"></div>
@@ -82,131 +81,121 @@ textarea{min-height:200px;resize:vertical;font-family:inherit;line-height:1.8}
 </div>
 
 <script>
-(function(){
+var ANSWER = "县花本花";
 
-function today(){
-var d=new Date();
-return d.getFullYear()+"年"+(d.getMonth()+1)+"月"+d.getDate()+"日";
+function mycheck() {
+var v = document.getElementById("pw").value;
+v = v.replace(/^\s+|\s+$/g, "");
+if (v == ANSWER) {
+document.getElementById("gatex").style.display = "none";
+} else {
+document.getElementById("err").style.display = "block";
+document.getElementById("pw").value = "";
+}
 }
 
-function copy(t){
-var x=document.createElement("textarea");
-x.value=t;
+function mygen() {
+var theme = document.getElementById("theme").value;
+theme = theme.replace(/^\s+|\s+$/g, "");
+var mtype = document.getElementById("mtype").value;
+var extra = document.getElementById("extra").value;
+extra = extra.replace(/^\s+|\s+$/g, "");
+
+if (!theme) { alert("请输入会议主题"); return; }
+
+var d = new Date();
+var ds = d.getFullYear() + "年" + (d.getMonth()+1) + "月" + d.getDate() + "日";
+
+var p = "【学习会议材料汇编任务】\n\n";
+p += "会议类型：" + mtype + "\n";
+p += "会议主题：" + theme + "\n";
+p += "日期：" + ds + "\n";
+if (extra) { p += "补充要求：" + extra + "\n"; }
+p += "\n请帮我完成以下工作：\n\n";
+p += "一、搜索并整理相关学习材料\n";
+p += "1. 搜索主题相关的中央、省、州重要文件和讲话\n";
+p += "2. 搜索主题相关的最新会议精神和工作部署\n";
+p += "3. 材料内容要权威、准确、最新\n\n";
+p += "二、公文排版（GB/T 9704标准）\n";
+p += "1. A4纸，上37mm下35mm左28mm右26mm\n";
+p += "2. 标题黑体二号加粗，正文仿宋三号\n";
+p += "3. 每行28字，每页22行，行距固定28pt\n";
+p += "4. 层次序号：一、（一）、1.、1）\n\n";
+p += "三、自动生成目录\n";
+p += "按文章标题生成完整目录，标注页码\n\n";
+p += "四、生成Word文档\n";
+p += "1. 总页数70-90页\n";
+p += "2. 包含封面、目录、正文、封底\n";
+p += "3. 文件名：会议主题+学习材料汇编\n\n";
+p += "五、生成学习会议主持词\n";
+p += "1. 符合公文语体\n";
+p += "2. 包含会议议程、学习要求等\n";
+p += "3. 主持词单独一页\n\n";
+p += "完成后请提供Word文档下载链接。";
+
+document.getElementById("output").textContent = p;
+document.getElementById("output").style.display = "block";
+document.getElementById("copybtn").style.display = "inline-block";
+document.getElementById("chint").style.display = "none";
+mycopy(p);
+
+var h = [];
+try { h = JSON.parse(localStorage.getItem("mhist") || "[]"); } catch(e) {}
+h.unshift({t:theme, m:mtype, d:ds, p:p});
+if (h.length > 20) h = h.slice(0, 20);
+try { localStorage.setItem("mhist", JSON.stringify(h)); } catch(e) {}
+myrender();
+}
+
+function mycopy(text) {
+var x = document.createElement("textarea");
+x.value = text;
 document.body.appendChild(x);
 x.select();
 document.execCommand("copy");
 document.body.removeChild(x);
 }
 
-function load(){
-var h=[];
-try{h=JSON.parse(localStorage.getItem("mhist")||"[]");}catch(e){}
-return h;
+function myrender() {
+var h = [];
+try { h = JSON.parse(localStorage.getItem("mhist") || "[]"); } catch(e) {}
+var el = document.getElementById("hist");
+if (!h.length) { el.innerHTML = '<div class="empty">暂无记录</div>'; return; }
+var s = "";
+for (var i = 0; i < h.length; i++) {
+s += '<div class="hist-item">';
+s += '<div class="ht">' + h[i].t + '</div>';
+s += '<div class="hd">' + h[i].m + ' | ' + h[i].d + '</div>';
+s += '<button class="btn btn-sm" onclick="myreuse(' + i + ')">重新使用</button>';
+s += '</div>';
+}
+el.innerHTML = s;
 }
 
-function save(arr){
-try{localStorage.setItem("mhist",JSON.stringify(arr));}catch(e){}
+function myreuse(idx) {
+var h = [];
+try { h = JSON.parse(localStorage.getItem("mhist") || "[]"); } catch(e) {}
+if (!h[idx]) return;
+var item = h[idx];
+document.getElementById("theme").value = item.t;
+document.getElementById("mtype").value = item.m;
+document.getElementById("output").textContent = item.p;
+document.getElementById("output").style.display = "block";
+document.getElementById("copybtn").style.display = "inline-block";
+document.getElementById("chint").style.display = "none";
+mycopy(item.p);
+window.scrollTo(0, 0);
 }
 
-function render(){
-var h=load();
-var el=document.getElementById("hist");
-if(!h.length){el.innerHTML='<div class="empty">暂无记录</div>';return;}
-var s="";
-for(var i=0;i<h.length;i++){
-s+='<div class="hist-item">';
-s+='<div class="ht">'+h[i].t+'</div>';
-s+='<div class="hd">'+h[i].m+' | '+h[i].d+'</div>';
-s+='<button class="btn btn-sm" data-i="'+i+'">重新使用</button>';
-s+='</div>';
-}
-el.innerHTML=s;
-var btns=el.querySelectorAll("[data-i]");
-for(var j=0;j<btns.length;j++){
-btns[j].onclick=function(){
-var idx=parseInt(this.getAttribute("data-i"));
-var item=h[idx];
-document.getElementById("theme").value=item.t;
-document.getElementById("mtype").value=item.m;
-document.getElementById("output").textContent=item.p;
-document.getElementById("output").style.display="block";
-document.getElementById("copybtn").style.display="inline-block";
-document.getElementById("chint").style.display="inline";
-copy(item.p);
-window.scrollTo(0,0);
-};
-}
-}
-
-// 验证
-document.getElementById("okbtn").onclick=function(){
-var v=document.getElementById("pw").value.trim();
-if(v==="县花本花"){
-document.getElementById("gatex").style.display="none";
-}else{
-document.getElementById("err").style.display="block";
-document.getElementById("pw").value="";
+document.getElementById("copybtn").onclick = function() {
+var t = document.getElementById("output").textContent;
+if (t) {
+mycopy(t);
+document.getElementById("chint").style.display = "inline";
 }
 };
-document.getElementById("pw").onkeydown=function(e){
-if(e.keyCode===13)document.getElementById("okbtn").click();
-};
 
-// 生成提示词
-document.getElementById("genbtn").onclick=function(){
-var theme=document.getElementById("theme").value.trim();
-var mtype=document.getElementById("mtype").value;
-var extra=document.getElementById("extra").value.trim();
-
-if(!theme){alert("请输入会议主题");return;}
-
-var p="【学习会议材料汇编任务】\n\n";
-p+="会议类型："+mtype+"\n";
-p+="会议主题："+theme+"\n";
-p+="日期："+today()+"\n";
-if(extra){p+="补充要求："+extra+"\n";}
-p+="\n请帮我完成以下工作：\n\n";
-p+="一、搜索并整理相关学习材料\n";
-p+="1. 搜索主题相关的中央、省、州重要文件和讲话\n";
-p+="2. 搜索主题相关的最新会议精神和工作部署\n";
-p+="3. 材料内容要权威、准确、最新\n\n";
-p+="二、公文排版（GB/T 9704标准）\n";
-p+="1. A4纸，上37mm下35mm左28mm右26mm\n";
-p+="2. 标题黑体二号加粗，正文仿宋三号\n";
-p+="3. 每行28字，每页22行，行距固定28pt\n";
-p+="4. 层次序号：一、（一）、1.、1）\n\n";
-p+="三、自动生成目录\n";
-p+="按文章标题生成完整目录，标注页码\n\n";
-p+="四、生成Word文档\n";
-p+="1. 总页数70-90页\n";
-p+="2. 包含封面、目录、正文、封底\n";
-p+="3. 文件名：会议主题+学习材料汇编\n\n";
-p+="五、生成学习会议主持词\n";
-p+="1. 符合公文语体\n";
-p+="2. 包含会议议程、学习要求等\n";
-p+="3. 主持词单独一页\n\n";
-p+="完成后请提供Word文档下载链接。";
-
-document.getElementById("output").textContent=p;
-document.getElementById("output").style.display="block";
-document.getElementById("copybtn").style.display="inline-block";
-document.getElementById("chint").style.display="none";
-copy(p);
-
-var h=load();
-h.unshift({t:theme,m:mtype,d:today(),p:p});
-if(h.length>20)h=h.slice(0,20);
-save(h);
-render();
-};
-
-// 复制按钮
-document.getElementById("copybtn").onclick=function(){
-var t=document.getElementById("output").textContent;
-if(t){copy(t);document.getElementById("chint").style.display="inline";}
-};
-
-render();
-})();
+myrender();
+</script>
 </body>
 </html>
