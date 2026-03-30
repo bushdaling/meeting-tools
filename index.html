@@ -65,7 +65,10 @@ textarea{min-height:200px;resize:vertical;font-family:inherit;line-height:1.8}
 </div>
 
 <div id="output"></div>
-<div class="copy-hint" id="chint">已复制到剪贴板，发给祁厅长即可</div>
+<div style="margin-top:8px">
+<button class="btn" id="copybtn" style="display:none">📋 复制提示词</button>
+<span class="copy-hint" id="chint">✅ 已复制到剪贴板，发给祁厅长即可</span>
+</div>
 
 <div class="card">
 <div class="card-title">历史记录</div>
@@ -121,7 +124,8 @@ document.getElementById("theme").value=item.t;
 document.getElementById("mtype").value=item.m;
 document.getElementById("output").textContent=item.p;
 document.getElementById("output").style.display="block";
-document.getElementById("chint").style.display="block";
+document.getElementById("copybtn").style.display="inline-block";
+document.getElementById("chint").style.display="inline";
 copy(item.p);
 window.scrollTo(0,0);
 };
@@ -179,7 +183,8 @@ p+="完成后请提供Word文档下载链接。";
 
 document.getElementById("output").textContent=p;
 document.getElementById("output").style.display="block";
-document.getElementById("chint").style.display="block";
+document.getElementById("copybtn").style.display="inline-block";
+document.getElementById("chint").style.display="none";
 copy(p);
 
 var h=load();
@@ -189,8 +194,13 @@ save(h);
 render();
 };
 
+// 复制按钮
+document.getElementById("copybtn").onclick=function(){
+var t=document.getElementById("output").textContent;
+if(t){copy(t);document.getElementById("chint").style.display="inline";}
+};
+
 render();
 })();
-</script>
 </body>
 </html>
